@@ -16,7 +16,7 @@ def main():
         st.header('Busca por restaurantes')
         cidade = st.multiselect('Cidade', df['cidade'].unique(), default='Rio de Janeiro')
         regiao = st.multiselect('Região', sorted(df.query("cidade.isin(@cidade)")['regiao'].unique()), default=df.query("cidade.isin(@cidade)")['regiao'].unique())
-        bairro = st.multiselect('Bairro', df.query("regiao == @regiao")['bairro'].unique(), default=['Centro', 'Lapa', 'Santa Teresa', 'Cidade Nova'])
+        bairro = st.multiselect('Bairro', df.query("regiao == @regiao")['bairro'].unique())
         st.markdown('---')
         st.caption('O aplicativo não tem relação com a organização do evento. O objetivo é apenas facilitar a busca de restaurantes participantes. A marca "Comida di Buteco®" pertence aos seus atuais organizadores.')
         st.caption('Desenvolvido por Matheus C. Pestana <matheus.pestana@iesp.uerj.br>')
@@ -52,32 +52,37 @@ def main():
     st.pydeck_chart(mapa)
 
     st.header('Lista de Restaurantes')
-
-    for i, row in df_filtered.iterrows():
-        with st.expander(row['restaurante']):
-            st.markdown(f"## Restaurante: {row['restaurante']}")
-            st.markdown(f"### Endereço: {row['endereco']}")
-            st.markdown(f"#### Prato: {row['nome_prato']}")
-            st.markdown(f"##### {row['descricao_prato']}")
-            st.markdown(f"###### Link original: {row['link']}")
-            st.image(row['foto'], width=900)
-            st.caption('Divulgação/Comida di Buteco® 2023')
+    if not bairro:
+        st.write('Utilize a busca no lado esquerdo para filtrar os restaurantes.')
+    else:
+        for i, row in df_filtered.iterrows():
+            with st.expander(row['restaurante']):
+                st.markdown(f"## Restaurante: {row['restaurante']}")
+                st.markdown(f"### Endereço: {row['endereco']}")
+                st.markdown(f"#### Prato: {row['nome_prato']}")
+                st.markdown(f"##### {row['descricao_prato']}")
+                st.markdown(f"###### Link original: {row['link']}")
+                st.image(row['foto'], width=900)
+                st.caption('Divulgação/Comida di Buteco® 2023')
 
     st.header('Tabela')
-    st.dataframe(df_filtered.reset_index().drop(columns=('index')))
+    if not bairro:
+        st.write('Utilize a busca no lado esquerdo para filtrar os restaurantes.')
+    else:
+        st.dataframe(df_filtered.reset_index().drop(columns=('index')))
 
-    buffer = io.BytesIO()
-    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
-        df_filtered.drop(columns=['latitude', 'longitude', 'foto']).to_excel(writer, sheet_name='Restaurantes Escolhidos', index=False)
-        df.drop(columns=['latitude', 'longitude', 'foto']).to_excel(writer, sheet_name='Todos os Restaurantes', index=False)
-        writer.save()
-    buffer.seek(0)
-    download = st.download_button(
-        label="Download da tabela",
-        data=buffer,
-        file_name='Restaurantes.xlsx',
-        mime='application/vnd.ms-excel'
-    )
+        buffer = io.BytesIO()
+        with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+            df_filtered.drop(columns=['latitude', 'longitude', 'foto']).to_excel(writer, sheet_name='Restaurantes Escolhidos', index=False)
+            df.drop(columns=['latitude', 'longitude', 'foto']).to_excel(writer, sheet_name='Todos os Restaurantes', index=False)
+            writer.save()
+        buffer.seek(0)
+        download = st.download_button(
+            label="Download da tabela",
+            data=buffer,
+            file_name='Restaurantes.xlsx',
+            mime='application/vnd.ms-excel'
+        )
 
 if __name__ == '__main__':
     main()
