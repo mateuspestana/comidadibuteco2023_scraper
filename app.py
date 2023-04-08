@@ -8,7 +8,7 @@ import os
 import pydeck as pdk
 import io
 
-st.set_page_config(page_title="Comida di Buteco®", page_icon="🍺", layout="wide")
+st.set_page_config(page_title="Acha Buteco 2023", page_icon="🍺", layout="wide")
 def main():
     df = pd.read_excel('dados_restaurantes.xlsx').sort_values('bairro')
 
@@ -21,7 +21,8 @@ def main():
         st.caption('O aplicativo não tem relação com a organização do evento. O objetivo é apenas facilitar a busca de restaurantes participantes. A marca "Comida di Buteco®" pertence aos seus atuais organizadores.')
         st.caption('Desenvolvido por Matheus C. Pestana <matheus.pestana@iesp.uerj.br>')
 
-    st.title('Comida de Buteco® - 2023')
+    st.title('Acha Buteco - 2023')
+    st.subheader('Buscador de Butecos do Comida di Buteco® 2023')
 
     st.header('Restaurantes participantes')
 
